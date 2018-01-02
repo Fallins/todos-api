@@ -273,6 +273,22 @@ describe('POST /users/login', () => {
   })
 
   it('should reject invalid login', done => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: 'abcd1234567'//users[1].password
+      })
+      .expect(400)
+      .expect(res => {
+        expect(res.headers['x-auth']).toNotExist()
+      }).end((err, res) => {
+        if(err) return done(err)
 
+        User.findById(users[1]._id).then( user => {
+          expect(user.tokens.length).toBe(0)
+          done()
+        }).catch( e => done(e))
+      })
   })
 })
